@@ -1,25 +1,28 @@
 {
 	"folders": [
-	    {
-		"path": "."
-	    }
-	],
-	"settings": {},
-	"launch": {
-	    "configurations": [
 		{
-		    "name": "Launch Program",
-		    "type": "node",
-		    "request": "launch",
-		    "runtimeExecutable": "npm",
-		    "runtimeArgs": [
-			"run-script",
-			"start:build"
-		    ],
-		    "skipFiles": [
-			"<node_internals>/**"
-		    ]
+			"path": "."
 		}
-	    ]
+	],
+	"settings": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"launch": {
+		"configurations": [
+			{
+				"name": "Launch Program",
+				"type": "node",
+				"request": "launch",
+				"runtimeExecutable": "npm",
+				"runtimeArgs": [
+					"run-script",
+					"start:build"
+				],
+				"skipFiles": [
+					"<node_internals>/**"
+				]
+			}
+		]
 	}
-    }
+}
