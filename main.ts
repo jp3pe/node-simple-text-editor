@@ -10,8 +10,12 @@ import {
 } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
+import { promisify } from 'util';
 
-function createWindow(): void {
+const readFileAsync = promisify(fs.readFile);
+const writeFileAsync = promisify(fs.writeFile);
+
+async function createWindow(): Promise<void> {
   const options: BrowserWindowConstructorOptions = {
     width: 800,
     height: 600,
@@ -47,51 +51,36 @@ function createWindow(): void {
   Menu.setApplicationMenu(menu);
 }
 
-function openFile(win: BrowserWindow): void {
-  dialog.showOpenDialog(win).then((result: OpenDialogReturnValue) => {
-    if (!result.canceled && result.filePaths.length > 0) {
-      readFile(result.filePaths[0], win);
-    }
-  });
+async function openFile(win: BrowserWindow): Promise<void> {
+  const result: OpenDialogReturnValue = await dialog.showOpenDialog(win);
+  if (!result.canceled && result.filePaths.length > 0) {
+    await readFile(result.filePaths[0], win);
+  }
 }
 
-function readFile(filePath: string, win: BrowserWindow): void {
-  fs.readFile(
-    filePath,
-    'utf-8',
-    (err: NodeJS.ErrnoException | null, data: string) => {
-      if (err) {
-        dialog.showErrorBox('An error occurred reading the file', err.message);
-        return;
-      }
-      win.webContents.executeJavaScript(
-        `document.querySelector('textarea').value = ${JSON.stringify(data)}`,
-      );
-    },
+async function readFile(filePath: string, win: BrowserWindow): Promise<void> {
+  try {
+    const data: string = await readFileAsync(filePath, 'utf-8');
+    await win.webContents.executeJavaScript(
+      `document.querySelector('textarea').value = ${JSON.stringify(data)}`,
+    );
+  } catch (err) {
+    dialog.showErrorBox('An error occurred reading the file', err.message);
+  }
+}
+
+async function saveFile(win: BrowserWindow): Promise<void> {
+  const value: string = await win.webContents.executeJavaScript(
+    `document.querySelector('textarea').value`,
   );
-}
-
-function saveFile(win: BrowserWindow): void {
-  win.webContents
-    .executeJavaScript(`document.querySelector('textarea').value`)
-    .then((value: string) => {
-      dialog.showSaveDialog(win).then((result: SaveDialogReturnValue) => {
-        if (!result.canceled && result.filePath) {
-          fs.writeFile(
-            result.filePath,
-            value,
-            (err: NodeJS.ErrnoException | null) => {
-              if (err) {
-                dialog.showErrorBox(
-                  'An error occurred saving the file',
-                  err.message,
-                );
-              }
-            },
-          );
-        }
-      });
-    });
+  const result: SaveDialogReturnValue = await dialog.showSaveDialog(win);
+  if (!result.canceled && result.filePath) {
+    try {
+      await writeFileAsync(result.filePath, value);
+    } catch (err) {
+      dialog.showErrorBox('An error occurred saving the file', err.message);
+    }
+  }
 }
 
 app.whenReady().then(createWindow);
