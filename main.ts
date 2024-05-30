@@ -6,6 +6,7 @@ import {
   OpenDialogReturnValue,
   BrowserWindowConstructorOptions,
   MenuItemConstructorOptions,
+  SaveDialogReturnValue,
 } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -32,6 +33,10 @@ function createWindow(): void {
         {
           label: 'Open',
           click: () => openFile(win),
+        },
+        {
+          label: 'Save',
+          click: () => saveFile(win),
         },
       ],
     },
@@ -64,6 +69,29 @@ function readFile(filePath: string, win: BrowserWindow): void {
       );
     },
   );
+}
+
+function saveFile(win: BrowserWindow): void {
+  win.webContents
+    .executeJavaScript(`document.querySelector('textarea').value`)
+    .then((value: string) => {
+      dialog.showSaveDialog(win).then((result: SaveDialogReturnValue) => {
+        if (!result.canceled && result.filePath) {
+          fs.writeFile(
+            result.filePath,
+            value,
+            (err: NodeJS.ErrnoException | null) => {
+              if (err) {
+                dialog.showErrorBox(
+                  'An error occurred saving the file',
+                  err.message,
+                );
+              }
+            },
+          );
+        }
+      });
+    });
 }
 
 app.whenReady().then(createWindow);
