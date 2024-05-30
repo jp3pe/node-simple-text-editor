@@ -1,9 +1,11 @@
 {
   "name": "simple-text-editor",
   "version": "1.0.0",
-  "main": "main.js",
+  "main": "dist/main.js",
   "scripts": {
     "start": "electron .",
+    "build": "tsc",
+    "start:build": "npm run build && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,5 +14,10 @@
   "description": "",
   "dependencies": {
     "electron": "^30.0.9"
+  },
+  "devDependencies": {
+    "@types/electron": "^1.6.10",
+    "@types/node": "^20.12.13",
+    "typescript": "^5.4.5"
   }
 }
