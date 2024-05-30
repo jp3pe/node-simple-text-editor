@@ -1,8 +1,25 @@
 {
 	"folders": [
-		{
-			"path": "."
-		}
+	    {
+		"path": "."
+	    }
 	],
-	"settings": {}
-}
+	"settings": {},
+	"launch": {
+	    "configurations": [
+		{
+		    "name": "Launch Program",
+		    "type": "node",
+		    "request": "launch",
+		    "runtimeExecutable": "npm",
+		    "runtimeArgs": [
+			"run-script",
+			"start:build"
+		    ],
+		    "skipFiles": [
+			"<node_internals>/**"
+		    ]
+		}
+	    ]
+	}
+    }
